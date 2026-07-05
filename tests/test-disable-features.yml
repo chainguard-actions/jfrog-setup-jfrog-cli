@@ -1,0 +1,38 @@
+name: Test JFrog CLI with features disabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: setup-jfrog
+        uses: .
+        with:
+          disable-job-summary: "true"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+
+      - name: Assert JFrog CLI is installed and functional
+        run: |
+          echo "Checking jf CLI is available..."
+          if ! command -v jf &>/dev/null; then
+            echo "FAIL: 'jf' command not found in PATH"
+            exit 1
+          fi
+          echo "PASS: jf is available"
+
+      - name: Assert jf help works
+        run: |
+          HELP_OUTPUT=$(jf --help 2>&1 || true)
+          echo "jf help output (first 5 lines):"
+          echo "$HELP_OUTPUT" | head -5
+          if [ -z "$HELP_OUTPUT" ]; then
+            echo "FAIL: jf --help returned empty output"
+            exit 1
+          fi
+          echo "PASS: jf --help returned output"
