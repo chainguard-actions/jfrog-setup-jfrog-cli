@@ -1,0 +1,35 @@
+name: Test basic JFrog CLI setup
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          version: "2.91.0"
+          disable-job-summary: "true"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert JFrog CLI is installed
+        run: |
+          echo "Checking jf CLI is available..."
+          if ! command -v jf &>/dev/null; then
+            echo "FAIL: 'jf' command not found in PATH"
+            exit 1
+          fi
+          echo "PASS: jf is available"
+      - name: Assert JFrog CLI version
+        run: |
+          VERSION=$(jf --version 2>&1 || true)
+          echo "actual version output: $VERSION"
+          if ! echo "$VERSION" | grep -q "2.91.0"; then
+            echo "FAIL: expected version 2.91.0 in output: $VERSION"
+            exit 1
+          fi
+          echo "PASS: version matches 2.91.0"
