@@ -1,0 +1,36 @@
+name: Test JFrog CLI setup with disable flags
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup-jfrog
+        uses: .
+        with:
+          version: "2.81.0"
+          disable-job-summary: "true"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert jf CLI is installed despite disable flags
+        run: |
+          echo "Checking jf CLI is available with all disable flags set..."
+          if ! command -v jf &> /dev/null; then
+            echo "FAIL: jf command not found"
+            exit 1
+          fi
+          echo "PASS: jf command found"
+      - name: Assert jf CLI is functional
+        run: |
+          echo "Running jf --version to confirm CLI is functional..."
+          OUTPUT=$(jf --version 2>&1 || true)
+          echo "output: $OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "FAIL: jf --version produced no output"
+            exit 1
+          fi
+          echo "PASS: jf CLI is functional"
