@@ -1,0 +1,34 @@
+name: Test disable auto build publish flag
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup-jfrog
+        uses: .
+        with:
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+          disable-job-summary: "true"
+      - name: Assert JFrog CLI is installed
+        run: |
+          echo "Checking jf CLI is available..."
+          if ! command -v jf &>/dev/null; then
+            echo "FAIL: 'jf' command not found"
+            exit 1
+          fi
+          echo "PASS: jf is installed with disable-auto-build-publish=true"
+      - name: Assert jf version command works
+        run: |
+          OUTPUT=$(jf --version 2>&1)
+          echo "jf version output: $OUTPUT"
+          if [ -z "$OUTPUT" ]; then
+            echo "FAIL: jf --version returned empty output"
+            exit 1
+          fi
+          echo "PASS: jf --version returned output"
