@@ -1,0 +1,47 @@
+name: "Release"
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Extract Major and Minor Versions from Tag
+        id: extract-version
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          # Ensure the tag follows semantic versioning (e.g., v1.2.3)
+          if [[ "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+) ]]; then
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            safe_major=$(printf '%s' "$MAJOR" | tr -d '\n\r')
+            safe_minor=$(printf '%s' "$MINOR" | tr -d '\n\r')
+            echo "MAJOR=$safe_major" >> "$GITHUB_ENV"
+            echo "MINOR=$safe_minor" >> "$GITHUB_ENV"
+            echo "Extracted Major: $safe_major, Minor: $safe_minor"
+          else
+            echo "Invalid tag format: $TAG_NAME"
+            exit 1
+          fi
+
+      - name: Update Major and Minor Tags
+        run: |
+          # Create or update major version tag
+          git tag -f "v$MAJOR"
+          # Create or update minor version tag
+          git tag -f "v$MAJOR.$MINOR"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@881a6320fdb16eb5318c5054f31c218aec2b324c # master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tags: true
+          force: true
