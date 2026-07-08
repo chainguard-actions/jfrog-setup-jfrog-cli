@@ -45,10 +45,10 @@ jobs:
       - name: Post Step to Test the Auto Build-Publish post step
         uses: gacts/run-and-post-run@598d7a875d5620e0457490555b5e18e46082aa47 # v1
         env:
-          JF_ADMIN_PASSWORD: ${{ secrets.JF_PASSWORD }}
+          LOCAL_ADMIN_PASSWORD: ${{ secrets.LOCAL_ADMIN_PASSWORD }}
         with:
           post: |
-            jf c add --artifactory-url http://localhost:8081/artifactory --user admin --password "$JF_ADMIN_PASSWORD"; \
+            jf c add --artifactory-url http://localhost:8081/artifactory --user admin --password "$LOCAL_ADMIN_PASSWORD"; \
             count=$(jf rt search "artifactory-build-info/${GITHUB_WORKFLOW}/${GITHUB_RUN_NUMBER}-*" --count 2>stderr.log); \
             exit_code=$?; \
             cat stderr.log; \

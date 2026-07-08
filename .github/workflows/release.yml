@@ -35,9 +35,9 @@ jobs:
       - name: Update Major and Minor Tags
         run: |
           # Create or update major version tag
-          git tag -f v$MAJOR
+          git tag -f "v$MAJOR"
           # Create or update minor version tag
-          git tag -f v$MAJOR.$MINOR
+          git tag -f "v$MAJOR.$MINOR"
 
       - name: Push changes
         uses: ad-m/github-push-action@881a6320fdb16eb5318c5054f31c218aec2b324c # master
