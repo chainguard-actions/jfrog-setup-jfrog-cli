@@ -50,8 +50,8 @@ jobs:
           JFROG_PLATFORM_URL: ${{ secrets.JFROG_PLATFORM_URL }}
           JFROG_PLATFORM_RT_TOKEN: ${{ secrets.JFROG_PLATFORM_RT_TOKEN }}
           AUDIENCE_ID: ${{ matrix.audience_id }}
-          AUDIENCE_VALUE: ${{ matrix.audience_value }}
           RUN_ID: ${{ github.run_id }}
+          AUDIENCE_VALUE: ${{ matrix.audience_value }}
         run: |
           curl -X POST "${JFROG_PLATFORM_URL}/access/api/v1/oidc" \
             -H "Content-Type: application/json" \

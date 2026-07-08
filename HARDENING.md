@@ -1,6 +1,6 @@
 <!-- markdownlint-disable -->
 
-# Hardening Report: jfrog--setup-jfrog-cli--/v4.8.1
+# Hardening Report: jfrog--setup-jfrog-cli/v4.8.1
 
 > This file was generated automatically by the hardening agent.
 
@@ -10,45 +10,36 @@
 
 **Harden Agent Version:** `1`
 
-Action **jfrog--setup-jfrog-cli--/v4.8.1** was hardened automatically. 5 finding(s) were identified and resolved across 3 iteration(s).
+Action **jfrog--setup-jfrog-cli/v4.8.1** was hardened automatically. 5 finding(s) were identified and resolved across 2 iteration(s).
 
 ## Findings Fixed
 
 ### unpinned-uses (severity: high)
 
-Multiple workflow files reference actions using mutable tags/branches instead of pinned full-length SHA commits, making them vulnerable to supply-chain attacks.
-
-auto-build-publish.yml: actions/checkout@v4, jfrog/.github/actions/install-go-with-cache@main, jfrog/.github/actions/install-local-artifactory@main, gacts/run-and-post-run@v1, jsdaniell/create-json@v1.2.3
-cla.yml: jfrog/.github/actions/cla@main
-frogbot-scan-pull-request.yml: jfrog/frogbot@v2
-frogbot-scan-repository.yml: jfrog/.github/actions/install-go-with-cache@main, jfrog/frogbot@v2
-oidc-integration-test.yml: actions/checkout@v4
-release.yml: actions/checkout@v4, ad-m/github-push-action@master
-remove-label.yml: actions-ecosystem/action-remove-labels@v1
-test.yml: actions/checkout@v4, actions/setup-node@v4, wei/curl@master
+Multiple workflow files reference actions using mutable tags or branch names instead of pinned 40-character SHA digests, making them vulnerable to supply-chain attacks. Failing references include: auto-build-publish.yml: actions/checkout@v4, jfrog/.github/actions/install-go-with-cache@main, jfrog/.github/actions/install-local-artifactory@main, gacts/run-and-post-run@v1, jsdaniell/create-json@v1.2.3; cla.yml: jfrog/.github/actions/cla@main; frogbot-scan-pull-request.yml: jfrog/frogbot@v2; frogbot-scan-repository.yml: jfrog/.github/actions/install-go-with-cache@main, jfrog/frogbot@v2; oidc-integration-test.yml: actions/checkout@v4; release.yml: actions/checkout@v4, ad-m/github-push-action@master; remove-label.yml: actions-ecosystem/action-remove-labels@v1; test.yml: actions/checkout@v4, actions/setup-node@v4, wei/curl@master.
 
 Locations:
 
-- `.github/workflows/auto-build-publish.yml:30`
+- `.github/workflows/auto-build-publish.yml:29`
 - `.github/workflows/auto-build-publish.yml:33`
-- `.github/workflows/auto-build-publish.yml:36`
-- `.github/workflows/auto-build-publish.yml:40`
-- `.github/workflows/auto-build-publish.yml:65`
+- `.github/workflows/auto-build-publish.yml:37`
+- `.github/workflows/auto-build-publish.yml:43`
+- `.github/workflows/auto-build-publish.yml:62`
 - `.github/workflows/cla.yml:13`
-- `.github/workflows/frogbot-scan-pull-request.yml:14`
+- `.github/workflows/frogbot-scan-pull-request.yml:15`
+- `.github/workflows/frogbot-scan-repository.yml:18`
 - `.github/workflows/frogbot-scan-repository.yml:20`
-- `.github/workflows/frogbot-scan-repository.yml:22`
-- `.github/workflows/oidc-integration-test.yml:113`
-- `.github/workflows/release.yml:10`
-- `.github/workflows/release.yml:36`
-- `.github/workflows/remove-label.yml:14`
-- `.github/workflows/test.yml:26`
-- `.github/workflows/test.yml:28`
-- `.github/workflows/test.yml:47`
+- `.github/workflows/oidc-integration-test.yml:119`
+- `.github/workflows/release.yml:11`
+- `.github/workflows/release.yml:33`
+- `.github/workflows/remove-label.yml:12`
+- `.github/workflows/test.yml:20`
+- `.github/workflows/test.yml:22`
+- `.github/workflows/test.yml:38`
 
 ### missing-permissions (severity: medium)
 
-The following workflow files have no top-level permissions: block and no job-level permissions: blocks, meaning they run with the default (potentially broad) token permissions: auto-build-publish.yml, cla.yml, release.yml, remove-label.yml, test.yml.
+The following workflow files have no top-level permissions: block and no job-level permissions: blocks, meaning they run with the default (potentially broad) GITHUB_TOKEN permissions: auto-build-publish.yml, cla.yml, release.yml, remove-label.yml, test.yml.
 
 Locations:
 
@@ -60,38 +51,33 @@ Locations:
 
 ### script-injection (severity: high)
 
-Sub-rule (a): GitHub Actions expressions are directly interpolated inside run: shell command strings.
-
-release.yml: TAG_NAME="${{ github.event.release.tag_name }}" — the release tag name is interpolated directly into a shell variable assignment inside a run: block.
-
-oidc-integration-test.yml: Multiple ${{ }} expressions are interpolated directly in run: blocks, including ${{ matrix.audience_id }}, ${{ matrix.audience_value }}, ${{ github.run_id }}, ${{ steps.setup-jfrog-cli.outputs.oidc-user }}, and ${{ steps.setup-jfrog-cli.outputs.oidc-token }}. These appear in curl commands and test assertions.
+Direct ${{ }} expression interpolation inside run: shell command strings. Sub-rule (a) violations: (1) release.yml line 16: `TAG_NAME="${{ github.event.release.tag_name }}"` — attacker-controlled release tag name is interpolated directly into a shell script. (2) oidc-integration-test.yml lines 47-57: `${{ matrix.audience_id }}`, `${{ github.run_id }}`, `${{ matrix.audience_value }}`, `${{ github.repository_owner }}` interpolated directly in curl run blocks. (3) oidc-integration-test.yml line 139: `run: test -n "${{ steps.setup-jfrog-cli.outputs.oidc-user }}"` — step output interpolated directly. (4) oidc-integration-test.yml line 143: `run: test -n "${{ steps.setup-jfrog-cli.outputs.oidc-token }}"` — step output interpolated directly. (5) oidc-integration-test.yml lines 149-151: cleanup run block with `${{ matrix.audience_id }}`, `${{ github.run_id }}` interpolated directly.
 
 Locations:
 
-- `.github/workflows/release.yml:15`
+- `.github/workflows/release.yml:16`
 - `.github/workflows/oidc-integration-test.yml:47`
-- `.github/workflows/oidc-integration-test.yml:57`
-- `.github/workflows/oidc-integration-test.yml:131`
-- `.github/workflows/oidc-integration-test.yml:135`
-- `.github/workflows/oidc-integration-test.yml:155`
-- `.github/workflows/oidc-integration-test.yml:159`
+- `.github/workflows/oidc-integration-test.yml:62`
+- `.github/workflows/oidc-integration-test.yml:139`
+- `.github/workflows/oidc-integration-test.yml:143`
+- `.github/workflows/oidc-integration-test.yml:149`
 
 ### github-env-injection (severity: high)
 
-release.yml: The run: block sets TAG_NAME from ${{ github.event.release.tag_name }} (an untrusted input), extracts MAJOR and MINOR from it via regex, and then writes them to $GITHUB_ENV without the required sanitization step (printf '%s' ... | tr -d '\n\r'). Although the regex match provides some filtering, the values are written directly: echo "MAJOR=$MAJOR" >> $GITHUB_ENV and echo "MINOR=$MINOR" >> $GITHUB_ENV.
+In release.yml, the run: block at line 16 interpolates `${{ github.event.release.tag_name }}` directly into the shell variable TAG_NAME, then writes derived values MAJOR and MINOR to $GITHUB_ENV without sanitization (no `printf '%s' ... | tr -d '\n\r'` step). An attacker who can create a release with a crafted tag name containing newlines could inject arbitrary environment variables.
 
 Locations:
 
-- `.github/workflows/release.yml:19`
-- `.github/workflows/release.yml:20`
+- `.github/workflows/release.yml:16`
 
 ### hardcoded-credentials (severity: high)
 
-test.yml: The env variable JF_ENV_LOCAL is assigned a hardcoded base64-encoded value (eyJ2ZXJzaW9uIjoxLCJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjgwODEvYXJ0aWZhY3RvcnkvIiwidXNlciI6ImFkbWluIiwicGFzc3dvcmQiOiJBUEI3REVaUlBpSHFIRFRRb2tMa3g5aGh6S1QiLCJzZXJ2ZXJJZCI6ImxvY2FsIn0=) which decodes to a JSON object containing a password field with a literal credential value. This matches the hardcoded-credentials pattern (password: <literal>).
+Hardcoded credentials found in workflow files: (1) test.yml line 14: JF_ENV_LOCAL is set to a base64-encoded JSON blob that decodes to include a hardcoded password ("password":"APB7DEZRPiHqHDTQokLkx9hhzKT") and admin credentials for a local Artifactory instance. (2) auto-build-publish.yml line 57: JF_PASSWORD is set to the literal value 'password' for a local Artifactory instance.
 
 Locations:
 
-- `.github/workflows/test.yml:13`
+- `.github/workflows/test.yml:14`
+- `.github/workflows/auto-build-publish.yml:57`
 
 ## Iteration Notes
 
@@ -101,21 +87,34 @@ Locations:
 
 **Notes:**
 
-Fixed all findings across 8 workflow files: (1) unpinned-uses: Pinned all action references to full commit SHAs with tag comments in auto-build-publish.yml, cla.yml, frogbot-scan-pull-request.yml, frogbot-scan-repository.yml, oidc-integration-test.yml, release.yml, remove-label.yml, and test.yml. (2) missing-permissions: Added minimal permissions blocks to auto-build-publish.yml (contents: read), cla.yml (contents: read, pull-requests: write, issues: write), release.yml (contents: write), remove-label.yml (pull-requests: write, issues: write), and test.yml (contents: read). (3) script-injection: Moved all ${{ }} expressions in run: blocks to env: blocks in oidc-integration-test.yml (matrix.audience_id, matrix.audience_value, github.run_id, steps.setup-jfrog-cli.outputs.oidc-user, steps.setup-jfrog-cli.outputs.oidc-token) and release.yml (github.event.release.tag_name). (4) github-env-injection: In release.yml, TAG_NAME moved to env block, and MAJOR/MINOR values are sanitized with printf '%s' ... | tr -d '\n\r' before writing to $GITHUB_ENV. (5) hardcoded-credentials: Replaced the hardcoded base64 JF_ENV_LOCAL value in test.yml with ${{ secrets.JF_ENV_LOCAL }}.
+Fixed all findings across 7 workflow files:
 
-### Iteration 2
+1. unpinned-uses: Pinned all action references to full 40-char SHAs with tag comments:
+   - actions/checkout@v4 → @34e114876b0b11c390a56381ad16ebd13914f8d5
+   - actions/setup-node@v4 → @49933ea5288caeca8642d1e84afbd3f7d6820020
+   - jfrog/.github/actions/install-go-with-cache@main → @8342bf108acbcb73a0f951cdea804385bf1d16fc
+   - jfrog/.github/actions/install-local-artifactory@main → @8342bf108acbcb73a0f951cdea804385bf1d16fc
+   - gacts/run-and-post-run@v1 → @598d7a875d5620e0457490555b5e18e46082aa47
+   - jsdaniell/create-json@v1.2.3 → @b8e77fa01397ca39cc4a6198cc29a3be5481afef
+   - jfrog/.github/actions/cla@main → @8342bf108acbcb73a0f951cdea804385bf1d16fc
+   - jfrog/frogbot@v2 → @a2e5edb22925b75bda6847bb46b75e4015cc38db
+   - ad-m/github-push-action@master → @881a6320fdb16eb5318c5054f31c218aec2b324c
+   - actions-ecosystem/action-remove-labels@v1 → @2ce5d41b4b6aa8503e285553f75ed56e0a40bae0
+   - wei/curl@master → @012398a392d02480afa2720780031f8621d5f94c
+
+2. missing-permissions: Added top-level permissions blocks to auto-build-publish.yml (contents: read), cla.yml (contents: read, pull-requests: write, issues: write), release.yml (contents: write), remove-label.yml (pull-requests: write, issues: write), and test.yml (contents: read).
+
+3. script-injection: Moved all ${{ }} expressions out of run: shell strings into env: blocks in oidc-integration-test.yml (audience_id, run_id, audience_value, repository_owner, oidc-user output, oidc-token output) and release.yml (tag_name).
+
+4. github-env-injection: In release.yml, moved tag_name into env block and sanitized with printf '%s' | tr -d '\n\r' before using in GITHUB_ENV writes. Used printf format to write MAJOR/MINOR to GITHUB_ENV safely.
+
+5. hardcoded-credentials: In test.yml, replaced the hardcoded base64-encoded JF_ENV_LOCAL value with ${{ secrets.JF_ENV_LOCAL }}. In auto-build-publish.yml, replaced the hardcoded JF_PASSWORD: password with ${{ secrets.LOCAL_ARTIFACTORY_PASSWORD }}.
+
+### Iteration 1
 
 **Fixes applied:** hardcoded-credentials
 
 **Notes:**
 
-Replaced both hardcoded 'password' literals in .github/workflows/auto-build-publish.yml with references to ${{ secrets.LOCAL_ARTIFACTORY_PASSWORD }}. (1) In the 'Post Step to Test the Auto Build-Publish post step', added an env block with LOCAL_ARTIFACTORY_PASSWORD: ${{ secrets.LOCAL_ARTIFACTORY_PASSWORD }} and updated the shell command to use "$LOCAL_ARTIFACTORY_PASSWORD" instead of the literal 'password'. (2) In the 'Setup JFrog CLI' step, changed JF_PASSWORD from the hardcoded literal 'password' to ${{ secrets.LOCAL_ARTIFACTORY_PASSWORD }}.
-
-### Iteration 3
-
-**Fixes applied:** script-injection
-
-**Notes:**
-
-Fixed unquoted shell variable expansions in the 'Update Major and Minor Tags' step of .github/workflows/release.yml. Changed `git tag -f v$MAJOR` to `git tag -f "v$MAJOR"` and `git tag -f v$MAJOR.$MINOR` to `git tag -f "v$MAJOR.$MINOR"`. The variables $MAJOR and $MINOR are sourced from $GITHUB_ENV (populated from github.event.release.tag_name), and while they are validated as numeric by a regex in the previous step, double-quoting them prevents any potential shell metacharacter injection if validation were bypassed or the env var overridden.
+Replaced the hardcoded literal password 'password' in the post: script of the 'Post Step to Test the Auto Build-Publish post step' step in .github/workflows/auto-build-publish.yml. Added an env: block to the step that maps LOCAL_ARTIFACTORY_PASSWORD to ${{ secrets.LOCAL_ARTIFACTORY_PASSWORD }}, and updated the jf c add command to use --password "$LOCAL_ARTIFACTORY_PASSWORD" instead of --password password. This is consistent with how the same credential is used in the Setup JFrog CLI step.
 

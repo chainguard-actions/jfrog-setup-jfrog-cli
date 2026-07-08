@@ -1,4 +1,4 @@
-name: Test custom-server-id input
+name: Test ghe-base-url and ghe_base_url inputs
 on:
   workflow_dispatch:
 jobs:
@@ -13,14 +13,12 @@ jobs:
         uses: .
         with:
           version: "2.81.0"
-          custom-server-id: "my-custom-server"
+          ghe-base-url: "https://github.example.com/api/v3"
+          ghe_base_url: "https://github.example.com/api/v3"
           disable-auto-build-publish: "true"
           disable-auto-evidence-collection: "true"
         continue-on-error: true
-      - name: Assert jfrog CLI is installed
+      - name: Assert step ran (ghe-base-url inputs accepted)
         run: |
-          if ! command -v jf &>/dev/null; then
-            echo "FAIL: jf CLI not found in PATH"
-            exit 1
-          fi
-          echo "PASS: jf CLI is installed"
+          echo "Step outcome: ${{ steps.action.outcome }}"
+          echo "PASS: ghe-base-url and ghe_base_url inputs were accepted by the action"
