@@ -1,4 +1,4 @@
-name: Test custom-server-id and ghe-base-url inputs
+name: Test ghe_base_url alias input
 on:
   workflow_dispatch:
 jobs:
@@ -13,12 +13,11 @@ jobs:
         uses: .
         with:
           version: "2.81.0"
-          custom-server-id: "my-custom-server"
-          ghe-base-url: "https://github.example.com/api/v3"
+          ghe_base_url: "https://github.example.com/api/v3"
           disable-auto-build-publish: "true"
           disable-job-summary: "true"
         continue-on-error: true
-      - name: Assert action ran with custom-server-id and ghe-base-url inputs
+      - name: Assert action ran with ghe_base_url alias input
         run: |
-          echo "Action completed (custom-server-id and ghe-base-url inputs were accepted)"
+          echo "Action completed (ghe_base_url alias input was accepted)"
           echo "PASS"
