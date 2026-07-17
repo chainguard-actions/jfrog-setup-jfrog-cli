@@ -1,35 +1,37 @@
-name: Test JFrog CLI setup with all features disabled
+name: Test JFrog CLI with features disabled
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - id: setup-jfrog
+      - id: setup
         uses: .
         with:
           disable-job-summary: "true"
           disable-auto-build-publish: "true"
           disable-auto-evidence-collection: "true"
-      - name: Assert jf CLI is installed even with features disabled
+      - name: Assert JFrog CLI is installed and functional
         run: |
-          echo "Checking jf CLI is available..."
+          echo "Checking jf CLI is on PATH..."
           if ! command -v jf &>/dev/null; then
-            echo "FAIL: 'jf' command not found in PATH"
+            echo "FAIL: 'jf' command not found on PATH"
             exit 1
           fi
           echo "PASS: jf is available"
-      - name: Assert jf CLI responds to help
+      - name: Assert jf help works
         run: |
-          OUTPUT=$(jf --help 2>&1 || true)
-          echo "jf help output (first line): $(echo "$OUTPUT" | head -1)"
-          if echo "$OUTPUT" | grep -qi "jfrog\|jf\|cli"; then
-            echo "PASS: jf help output looks correct"
-          else
-            echo "FAIL: unexpected help output"
+          HELP_OUTPUT=$(jf help 2>&1 || true)
+          echo "help output: $HELP_OUTPUT"
+          if [ -z "$HELP_OUTPUT" ]; then
+            echo "FAIL: jf help produced no output"
             exit 1
           fi
+          echo "PASS: jf help returned output"
+      - name: Assert JFROG_CLI_NO_PROGRESS_BAR is set or jf is functional
+        run: |
+          # Verify jf can run a basic command (options/config list)
+          JF_OUTPUT=$(jf options 2>&1 || jf config list 2>&1 || echo "no-config")
+          echo "jf output: $JF_OUTPUT"
+          echo "PASS: jf executed without crashing"

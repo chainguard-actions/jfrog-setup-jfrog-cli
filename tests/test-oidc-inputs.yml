@@ -4,22 +4,26 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - id: action
+      - name: Run action with oidc-provider-name and oidc-audience inputs
+        id: action
         uses: .
         with:
           version: "2.91.0"
-          oidc-provider-name: "my-oidc-provider"
-          oidc-audience: "https://github.com/my-org"
+          oidc-provider-name: "test-oidc-provider"
+          oidc-audience: "https://github.com/test-org"
+          disable-job-summary: "true"
           disable-auto-build-publish: "true"
           disable-auto-evidence-collection: "true"
-          disable-job-summary: "true"
         continue-on-error: true
-      - name: Assert action ran with oidc-provider-name and oidc-audience inputs
+      - name: Assert action ran with oidc inputs
         run: |
-          echo "Action completed (oidc-provider-name and oidc-audience inputs were accepted)"
-          echo "PASS"
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action will fail because no real OIDC provider is configured,
+          # but the inputs must be accepted and the action must have been invoked
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran with oidc-provider-name and oidc-audience inputs"

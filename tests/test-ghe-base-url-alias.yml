@@ -1,4 +1,4 @@
-name: Test download-repository input
+name: Test ghe_base_url alias input
 on:
   workflow_dispatch:
 jobs:
@@ -6,23 +6,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Run action with download-repository input
+      - name: Run action with ghe_base_url alias input
         id: action
         uses: .
         with:
           version: "2.91.0"
-          download-repository: "jfrog-cli-remote"
+          ghe_base_url: "https://github.example.com/api/v3"
           disable-job-summary: "true"
           disable-auto-build-publish: "true"
           disable-auto-evidence-collection: "true"
         continue-on-error: true
-      - name: Assert action ran with download-repository input
+      - name: Assert action ran with ghe_base_url alias input
         run: |
           echo "Action outcome: ${{ steps.action.outcome }}"
-          # The action may fail if no Artifactory instance is available,
+          # The action may fail if no GHE server is available,
           # but the input must be accepted and the action must have been invoked
           if [ "${{ steps.action.outcome }}" = "skipped" ]; then
             echo "FAIL: action was skipped, expected it to run"
             exit 1
           fi
-          echo "PASS: action ran with download-repository input"
+          echo "PASS: action ran with ghe_base_url alias input"

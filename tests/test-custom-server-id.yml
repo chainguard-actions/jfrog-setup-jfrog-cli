@@ -4,21 +4,25 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - id: action
+      - name: Run action with custom-server-id
+        id: action
         uses: .
         with:
           version: "2.91.0"
           custom-server-id: "my-custom-server"
+          disable-job-summary: "true"
           disable-auto-build-publish: "true"
           disable-auto-evidence-collection: "true"
-          disable-job-summary: "true"
         continue-on-error: true
       - name: Assert action ran with custom-server-id input
         run: |
-          echo "Action completed (custom-server-id input was accepted)"
-          echo "PASS"
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action may fail if no JFrog server is configured, but the input must be accepted
+          # We just verify the action was invoked (not skipped) and the input was passed
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran with custom-server-id input"

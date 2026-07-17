@@ -18,8 +18,10 @@ jobs:
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
+          # Sanitize TAG_NAME to remove any embedded newlines
+          SAFE_TAG=$(printf '%s' "$TAG_NAME" | tr -d '\n\r')
           # Ensure the tag follows semantic versioning (e.g., v1.2.3)
-          if [[ "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+) ]]; then
+          if [[ "$SAFE_TAG" =~ ^v([0-9]+)\.([0-9]+) ]]; then
             MAJOR="${BASH_REMATCH[1]}"
             MINOR="${BASH_REMATCH[2]}"
             safe_major=$(printf '%s' "$MAJOR" | tr -d '\n\r')
@@ -28,16 +30,16 @@ jobs:
             echo "MINOR=$safe_minor" >> "$GITHUB_ENV"
             echo "Extracted Major: $safe_major, Minor: $safe_minor"
           else
-            echo "Invalid tag format: $TAG_NAME"
+            echo "Invalid tag format: $SAFE_TAG"
             exit 1
           fi
 
       - name: Update Major and Minor Tags
         run: |
           # Create or update major version tag
-          git tag -f "v$MAJOR"
+          git tag -f v$MAJOR
           # Create or update minor version tag
-          git tag -f "v$MAJOR.$MINOR"
+          git tag -f v$MAJOR.$MINOR
 
       - name: Push changes
         uses: ad-m/github-push-action@881a6320fdb16eb5318c5054f31c218aec2b324c # master

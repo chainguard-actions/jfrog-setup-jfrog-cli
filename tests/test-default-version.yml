@@ -1,4 +1,4 @@
-name: Test basic JFrog CLI setup
+name: Test JFrog CLI default version
 on:
   workflow_dispatch:
 jobs:
@@ -12,20 +12,19 @@ jobs:
           disable-job-summary: "true"
           disable-auto-build-publish: "true"
           disable-auto-evidence-collection: "true"
-      - name: Assert JFrog CLI is installed
+      - name: Assert JFrog CLI default version is installed
         run: |
           echo "Checking jf CLI is on PATH..."
           if ! command -v jf &>/dev/null; then
             echo "FAIL: 'jf' command not found on PATH"
             exit 1
           fi
-          echo "PASS: jf is available"
-      - name: Assert JFrog CLI version output
-        run: |
           VERSION_OUTPUT=$(jf --version 2>&1 || true)
           echo "version output: $VERSION_OUTPUT"
-          if [ -z "$VERSION_OUTPUT" ]; then
-            echo "FAIL: jf --version produced no output"
+          # Default version per action.yml is 2.91.0
+          if echo "$VERSION_OUTPUT" | grep -q "2.91.0"; then
+            echo "PASS: default version 2.91.0 confirmed"
+          else
+            echo "FAIL: expected default version 2.91.0 but got: $VERSION_OUTPUT"
             exit 1
           fi
-          echo "PASS: jf --version returned: $VERSION_OUTPUT"
