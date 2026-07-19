@@ -18,16 +18,17 @@ jobs:
         env:
           TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          SAFE_TAG=$(printf '%s' "$TAG_NAME" | tr -d '\n\r')
           # Ensure the tag follows semantic versioning (e.g., v1.2.3)
-          if [[ "$SAFE_TAG" =~ ^v([0-9]+)\.([0-9]+) ]]; then
+          if [[ "$TAG_NAME" =~ ^v([0-9]+)\.([0-9]+) ]]; then
             MAJOR="${BASH_REMATCH[1]}"
             MINOR="${BASH_REMATCH[2]}"
-            echo "MAJOR=$MAJOR" >> "$GITHUB_ENV"
-            echo "MINOR=$MINOR" >> "$GITHUB_ENV"
-            echo "Extracted Major: $MAJOR, Minor: $MINOR"
+            safe_major=$(printf '%s' "$MAJOR" | tr -d '\n\r')
+            safe_minor=$(printf '%s' "$MINOR" | tr -d '\n\r')
+            echo "MAJOR=$safe_major" >> "$GITHUB_ENV"
+            echo "MINOR=$safe_minor" >> "$GITHUB_ENV"
+            echo "Extracted Major: $safe_major, Minor: $safe_minor"
           else
-            echo "Invalid tag format: $SAFE_TAG"
+            echo "Invalid tag format: $TAG_NAME"
             exit 1
           fi
 

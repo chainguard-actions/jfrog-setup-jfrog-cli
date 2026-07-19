@@ -1,4 +1,4 @@
-name: Test custom-server-id input
+name: Test ghe-base-url input
 on:
   workflow_dispatch:
 jobs:
@@ -10,7 +10,7 @@ jobs:
         uses: .
         with:
           version: "2.91.0"
-          custom-server-id: "my-custom-server"
+          ghe-base-url: "https://github.example.com"
           disable-auto-build-publish: "true"
           disable-job-summary: "true"
       - name: Assert JFrog CLI is installed

@@ -44,11 +44,9 @@ jobs:
 
       - name: Post Step to Test the Auto Build-Publish post step
         uses: gacts/run-and-post-run@598d7a875d5620e0457490555b5e18e46082aa47 # v1
-        env:
-          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
         with:
           post: |
-            jf c add --artifactory-url http://localhost:8081/artifactory --user admin --password "$JF_PASSWORD"; \
+            jf c add --artifactory-url http://localhost:8081/artifactory --user admin --password password; \
             count=$(jf rt search "artifactory-build-info/${GITHUB_WORKFLOW}/${GITHUB_RUN_NUMBER}-*" --count 2>stderr.log); \
             exit_code=$?; \
             cat stderr.log; \
@@ -69,7 +67,7 @@ jobs:
         env:
           JF_URL: http://localhost:8081/
           JF_USER: admin
-          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+          JF_PASSWORD: ${{ secrets.JF_LOCAL_PASSWORD }}
 
       - name: Create NPM Remote Repository JSON
         uses: jsdaniell/create-json@b8e77fa01397ca39cc4a6198cc29a3be5481afef # v1.2.3
