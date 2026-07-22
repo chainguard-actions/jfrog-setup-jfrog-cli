@@ -30,7 +30,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -44,11 +44,9 @@ jobs:
 
       - name: Post Step to Test the Auto Build-Publish post step
         uses: gacts/run-and-post-run@598d7a875d5620e0457490555b5e18e46082aa47 # v1
-        env:
-          LOCAL_ADMIN_PASSWORD: ${{ secrets.LOCAL_ADMIN_PASSWORD }}
         with:
           post: |
-            jf c add --artifactory-url http://localhost:8081/artifactory --user admin --password "$LOCAL_ADMIN_PASSWORD"; \
+            jf c add --artifactory-url http://localhost:8081/artifactory --user admin --password ${{ secrets.ARTIFACTORY_PASSWORD }}; \
             count=$(jf rt search "artifactory-build-info/${GITHUB_WORKFLOW}/${GITHUB_RUN_NUMBER}-*" --count 2>stderr.log); \
             exit_code=$?; \
             cat stderr.log; \
@@ -69,7 +67,7 @@ jobs:
         env:
           JF_URL: http://localhost:8081/
           JF_USER: admin
-          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+          JF_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
 
       - name: Create NPM Remote Repository JSON
         uses: jsdaniell/create-json@b8e77fa01397ca39cc4a6198cc29a3be5481afef # v1.2.3

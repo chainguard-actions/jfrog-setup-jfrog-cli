@@ -13,12 +13,11 @@ jobs:
           ghe_base_url: "https://github.example.com/api/v3"
           disable-auto-build-publish: "true"
           disable-job-summary: "true"
-        continue-on-error: true
       - name: Assert JFrog CLI is installed
         run: |
-          if ! command -v jf &> /dev/null; then
-            echo "FAIL: jf CLI not found in PATH"
+          if ! command -v jf &>/dev/null; then
+            echo "FAIL: jf CLI not found"
             exit 1
           fi
-          echo "PASS: jf CLI is installed"
+          echo "PASS: jf CLI is installed with ghe_base_url alias input"
           jf --version

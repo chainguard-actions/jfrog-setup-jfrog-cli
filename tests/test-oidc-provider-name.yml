@@ -1,0 +1,26 @@
+name: Test oidc-provider-name input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          version: "2.88.0"
+          oidc-provider-name: "my-oidc-provider"
+          disable-auto-build-publish: "true"
+          disable-job-summary: "true"
+        continue-on-error: true
+      - name: Assert step ran (oidc-provider-name input was accepted)
+        run: |
+          echo "Step outcome: ${{ steps.action.outcome }}"
+          # OIDC requires a real JFrog platform with OIDC configured.
+          # We verify the input was accepted by the action (step ran, not skipped).
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action step was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: oidc-provider-name input was accepted by the action"

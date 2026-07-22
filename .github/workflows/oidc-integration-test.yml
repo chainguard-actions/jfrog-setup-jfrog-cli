@@ -47,15 +47,15 @@ jobs:
       - name: Create OpenID Connect integration
         shell: bash
         env:
+          JFROG_PLATFORM_URL: ${{ secrets.JFROG_PLATFORM_URL }}
+          JFROG_PLATFORM_RT_TOKEN: ${{ secrets.JFROG_PLATFORM_RT_TOKEN }}
           AUDIENCE_ID: ${{ matrix.audience_id }}
           AUDIENCE_VALUE: ${{ matrix.audience_value }}
           RUN_ID: ${{ github.run_id }}
-          JFROG_PLATFORM_URL: ${{ secrets.JFROG_PLATFORM_URL }}
-          JFROG_PLATFORM_RT_TOKEN: ${{ secrets.JFROG_PLATFORM_RT_TOKEN }}
         run: |
-          curl -X POST "$JFROG_PLATFORM_URL/access/api/v1/oidc" \
+          curl -X POST "${JFROG_PLATFORM_URL}/access/api/v1/oidc" \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $JFROG_PLATFORM_RT_TOKEN" \
+            -H "Authorization: Bearer ${JFROG_PLATFORM_RT_TOKEN}" \
             -d "{
               \"name\": \"oidc-integration-${AUDIENCE_ID}-${RUN_ID}\",
               \"issuer_url\": \"https://token.actions.githubusercontent.com\",
@@ -68,15 +68,15 @@ jobs:
       - name: Create OIDC Identity Mapping
         shell: bash
         env:
+          JFROG_PLATFORM_URL: ${{ secrets.JFROG_PLATFORM_URL }}
+          JFROG_PLATFORM_RT_TOKEN: ${{ secrets.JFROG_PLATFORM_RT_TOKEN }}
           AUDIENCE_ID: ${{ matrix.audience_id }}
           RUN_ID: ${{ github.run_id }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
-          JFROG_PLATFORM_URL: ${{ secrets.JFROG_PLATFORM_URL }}
-          JFROG_PLATFORM_RT_TOKEN: ${{ secrets.JFROG_PLATFORM_RT_TOKEN }}
         run: |
-          curl -X POST "$JFROG_PLATFORM_URL/access/api/v1/oidc/oidc-integration-${AUDIENCE_ID}-${RUN_ID}/identity_mappings" \
+          curl -X POST "${JFROG_PLATFORM_URL}/access/api/v1/oidc/oidc-integration-${AUDIENCE_ID}-${RUN_ID}/identity_mappings" \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $JFROG_PLATFORM_RT_TOKEN" \
+            -H "Authorization: Bearer ${JFROG_PLATFORM_RT_TOKEN}" \
             -d "{
               \"name\": \"oidc-test-mapping\",
               \"priority\": 1,
@@ -131,7 +131,7 @@ jobs:
       JFROG_CLI_LOG_LEVEL: DEBUG
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -174,10 +174,10 @@ jobs:
       - name: Delete OIDC integration
         shell: bash
         env:
-          AUDIENCE_ID: ${{ matrix.audience_id }}
-          RUN_ID: ${{ github.run_id }}
           JFROG_PLATFORM_URL: ${{ secrets.JFROG_PLATFORM_URL }}
           JFROG_PLATFORM_RT_TOKEN: ${{ secrets.JFROG_PLATFORM_RT_TOKEN }}
+          AUDIENCE_ID: ${{ matrix.audience_id }}
+          RUN_ID: ${{ github.run_id }}
         run: |
-          curl -X DELETE "$JFROG_PLATFORM_URL/access/api/v1/oidc/oidc-integration-${AUDIENCE_ID}-${RUN_ID}" \
-            -H "Authorization: Bearer $JFROG_PLATFORM_RT_TOKEN"
+          curl -X DELETE "${JFROG_PLATFORM_URL}/access/api/v1/oidc/oidc-integration-${AUDIENCE_ID}-${RUN_ID}" \
+            -H "Authorization: Bearer ${JFROG_PLATFORM_RT_TOKEN}"

@@ -1,12 +1,9 @@
-name: Test ghe-base-url and ghe_base_url inputs
+name: Test ghe-base-url input
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
@@ -14,15 +11,13 @@ jobs:
         with:
           version: "2.88.0"
           ghe-base-url: "https://github.example.com/api/v3"
-          ghe_base_url: "https://github.example.com/api/v3"
           disable-auto-build-publish: "true"
           disable-job-summary: "true"
-        continue-on-error: true
       - name: Assert JFrog CLI is installed
         run: |
           if ! command -v jf &>/dev/null; then
-            echo "FAIL: jf CLI not found in PATH"
+            echo "FAIL: jf CLI not found"
             exit 1
           fi
-          echo "PASS: jf CLI is installed"
+          echo "PASS: jf CLI is installed with ghe-base-url input"
           jf --version
