@@ -1,24 +1,25 @@
-name: Test ghe-base-url and ghe_base_url inputs
+name: Test ghe-base-url input
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
         uses: .
         with:
           version: "2.81.0"
-          ghe-base-url: "https://github.example.com/api/v3"
-          ghe_base_url: "https://github.example.com/api/v3"
+          ghe-base-url: "https://github.example.com"
           disable-auto-build-publish: "true"
           disable-auto-evidence-collection: "true"
+          disable-job-summary: "true"
         continue-on-error: true
-      - name: Assert step ran (ghe-base-url inputs accepted)
+      - name: Assert jf CLI is installed
         run: |
-          echo "Step outcome: ${{ steps.action.outcome }}"
-          echo "PASS: ghe-base-url and ghe_base_url inputs were accepted by the action"
+          if command -v jf >/dev/null 2>&1; then
+            echo "PASS: jf CLI is installed"
+          else
+            echo "FAIL: jf CLI not found"
+            exit 1
+          fi

@@ -20,7 +20,7 @@ jobs:
       - name: Setup Go with cache
         uses: jfrog/.github/actions/install-go-with-cache@8342bf108acbcb73a0f951cdea804385bf1d16fc # main
 
-      - uses: jfrog/frogbot@a2e5edb22925b75bda6847bb46b75e4015cc38db # v2
+      - uses: jfrog/frogbot@17efdfdbb49cb4ea05a9ac58bb29483763a0f5b9 # v2
         env:
           JFROG_CLI_LOG_LEVEL: "DEBUG"
 

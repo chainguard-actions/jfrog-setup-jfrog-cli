@@ -1,35 +1,30 @@
-name: Test JFrog CLI custom version
+name: Test JFrog CLI setup with custom version
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
       - id: setup
         uses: .
         with:
           version: "2.72.2"
-          disable-job-summary: "true"
-          disable-auto-build-publish: "true"
-          disable-auto-evidence-collection: "true"
-
       - name: Assert JFrog CLI is installed
         run: |
-          echo "Checking jf CLI is available..."
-          which jf || { echo "FAIL: jf not found in PATH"; exit 1; }
-          echo "PASS: jf found at $(which jf)"
-
-      - name: Assert JFrog CLI custom version
-        run: |
-          VERSION=$(jf --version 2>&1)
-          echo "actual version output: $VERSION"
-          if ! echo "$VERSION" | grep -q "2.72.2"; then
-            echo "FAIL: expected version 2.72.2 in output: $VERSION"
+          echo "Checking jf CLI is on PATH..."
+          if ! command -v jf &>/dev/null; then
+            echo "FAIL: 'jf' command not found on PATH"
             exit 1
           fi
-          echo "PASS: version matches 2.72.2"
+          echo "PASS: jf found at $(command -v jf)"
+      - name: Assert JFrog CLI version matches requested version
+        run: |
+          VERSION_OUTPUT=$(jf --version 2>&1 || true)
+          echo "version output: $VERSION_OUTPUT"
+          if echo "$VERSION_OUTPUT" | grep -q "2.72.2"; then
+            echo "PASS: requested version 2.72.2 installed"
+          else
+            echo "FAIL: expected version 2.72.2 in output: $VERSION_OUTPUT"
+            exit 1
+          fi

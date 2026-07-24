@@ -1,4 +1,4 @@
-name: Test basic JFrog CLI setup (default version)
+name: Test JFrog CLI setup with auto build publish disabled
 on:
   workflow_dispatch:
 jobs:
@@ -8,7 +8,9 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: setup
         uses: .
-      - name: Assert JFrog CLI is installed
+        with:
+          disable-auto-build-publish: "true"
+      - name: Assert JFrog CLI is installed despite disabled auto build publish
         run: |
           echo "Checking jf CLI is on PATH..."
           if ! command -v jf &>/dev/null; then
@@ -16,12 +18,12 @@ jobs:
             exit 1
           fi
           echo "PASS: jf found at $(command -v jf)"
-      - name: Assert JFrog CLI version matches default
+      - name: Assert JFrog CLI version is the default
         run: |
           VERSION_OUTPUT=$(jf --version 2>&1 || true)
           echo "version output: $VERSION_OUTPUT"
           if echo "$VERSION_OUTPUT" | grep -q "2.81.0"; then
-            echo "PASS: default version 2.81.0 installed"
+            echo "PASS: default version 2.81.0 installed with auto build publish disabled"
           else
             echo "FAIL: expected version 2.81.0 in output: $VERSION_OUTPUT"
             exit 1

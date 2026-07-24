@@ -30,7 +30,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -75,12 +75,7 @@ jobs:
         uses: jsdaniell/create-json@b8e77fa01397ca39cc4a6198cc29a3be5481afef # v1.2.3
         with:
           name: "npm-remote-template.json"
-          json: '{
-            "key": "npm-remote",
-            "rclass": "remote",
-            "packageType": "npm",
-            "url": "https://registry.npmjs.org"
-          }'
+          json: '{"key": "npm-remote", "rclass": "remote", "packageType": "npm", "url": "https://registry.npmjs.org"}'
 
       - name: Configure Artifactory NPM Remote Repository
         run: jf rt repo-create npm-remote-template.json
