@@ -1,4 +1,4 @@
-name: Test ghe-base-url input
+name: Test ghe_base_url alias input
 on:
   workflow_dispatch:
 jobs:
@@ -11,16 +11,16 @@ jobs:
         continue-on-error: true
         with:
           version: "2.91.0"
-          ghe-base-url: "https://github.example.com/api/v3"
+          ghe_base_url: "https://github.example.com/api/v3"
           disable-job-summary: "true"
           disable-auto-build-publish: "true"
-      - name: Assert action ran with ghe-base-url
+      - name: Assert action ran with ghe_base_url alias
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with ghe-base-url"
+            echo "PASS: action succeeded with ghe_base_url alias"
           elif [ "$OUTCOME" = "failure" ]; then
             echo "PASS: action failed gracefully (GHE URL not reachable in harness)"
           else
