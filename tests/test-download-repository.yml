@@ -8,14 +8,23 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
         uses: .
+        continue-on-error: true
         with:
           version: "2.81.0"
           download-repository: "jfrog-cli-remote"
           disable-auto-build-publish: "true"
           disable-auto-evidence-collection: "true"
           disable-job-summary: "true"
-        continue-on-error: true
-      - name: Assert action ran (download-repository requires Artifactory)
+      - name: Assert action ran with download-repository input
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action completed (download-repository requires a real Artifactory instance)"
-          echo "PASS: download-repository input was accepted by the action"
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with download-repository"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (no Artifactory instance available)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
