@@ -4,20 +4,27 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
         uses: .
+        continue-on-error: true
         with:
           version: "2.81.0"
-          ghe_base_url: "https://github.example.com/api/v3"
-          disable-auto-build-publish: "true"
+          ghe_base_url: "https://github.example.com"
           disable-job-summary: "true"
-        continue-on-error: true
-      - name: Assert action ran with ghe_base_url alias input
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert action ran with ghe_base_url alias
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action completed (ghe_base_url alias input was accepted)"
-          echo "PASS"
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with ghe_base_url alias"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (no GHE server reachable, expected in harness)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

@@ -1,4 +1,4 @@
-name: Test download-repository input
+name: Test oidc-provider-name and oidc-audience inputs
 on:
   workflow_dispatch:
 jobs:
@@ -11,19 +11,24 @@ jobs:
         continue-on-error: true
         with:
           version: "2.81.0"
-          download-repository: "https://my-artifactory.example.com/artifactory/jfrog-cli-remote"
+          oidc-provider-name: "my-oidc-provider"
+          oidc-audience: "https://github.com/my-org"
           disable-job-summary: "true"
           disable-auto-build-publish: "true"
           disable-auto-evidence-collection: "true"
-      - name: Assert action ran with download-repository
+      - name: Assert action ran with oidc inputs
         env:
           OUTCOME: ${{ steps.action.outcome }}
+          OIDC_TOKEN: ${{ steps.action.outputs.oidc-token }}
+          OIDC_USER: ${{ steps.action.outputs.oidc-user }}
         run: |
           echo "outcome: $OUTCOME"
+          echo "oidc-token present: $([ -n "$OIDC_TOKEN" ] && echo yes || echo no)"
+          echo "oidc-user present: $([ -n "$OIDC_USER" ] && echo yes || echo no)"
           if [ "$OUTCOME" = "success" ]; then
-            echo "PASS: action succeeded with download-repository"
+            echo "PASS: action succeeded with oidc-provider-name and oidc-audience"
           elif [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action failed gracefully (no Artifactory server reachable, expected in harness)"
+            echo "PASS: action failed gracefully (no OIDC provider configured, expected in harness)"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1

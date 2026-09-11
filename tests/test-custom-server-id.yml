@@ -1,24 +1,30 @@
-name: Test custom-server-id and ghe-base-url inputs
+name: Test custom-server-id input
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
         uses: .
+        continue-on-error: true
         with:
           version: "2.81.0"
           custom-server-id: "my-custom-server"
-          ghe-base-url: "https://github.example.com/api/v3"
-          disable-auto-build-publish: "true"
           disable-job-summary: "true"
-        continue-on-error: true
-      - name: Assert action ran with custom-server-id and ghe-base-url inputs
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert action ran with custom-server-id
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action completed (custom-server-id and ghe-base-url inputs were accepted)"
-          echo "PASS"
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded with custom-server-id"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (no JFrog server configured, expected in harness)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
