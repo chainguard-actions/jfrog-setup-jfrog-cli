@@ -6,20 +6,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Install JFrog CLI without download-repository to verify baseline
-        run: |
-          # Pre-install jf CLI so the action can find it even if download-repository fails
-          curl -fL https://install-cli.jfrog.io | sh
-          jf --version
       - id: action
         uses: .
         with:
-          version: "2.88.0"
           download-repository: "jfrog-cli-remote"
           disable-auto-build-publish: "true"
           disable-job-summary: "true"
         continue-on-error: true
-      - name: Assert step ran (input was accepted)
+      - name: Assert action ran with download-repository
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Step outcome: ${{ steps.action.outcome }}"
-          echo "PASS: download-repository input was accepted by the action"
+          echo "outcome: $OUTCOME"
+          # The action will fail because no Artifactory server is configured,
+          # but it must not be skipped — success or graceful failure are both acceptable.
+          if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action ran (outcome=$OUTCOME)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
