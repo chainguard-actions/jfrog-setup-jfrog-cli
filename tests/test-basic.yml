@@ -1,0 +1,21 @@
+name: Test basic JFrog CLI installation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        continue-on-error: true
+      - name: Assert JFrog CLI is installed
+        run: |
+          echo "Checking if jf binary is available..."
+          if command -v jf >/dev/null 2>&1; then
+            VERSION=$(jf --version 2>&1 || true)
+            echo "PASS: jf is installed: $VERSION"
+          else
+            echo "FAIL: jf binary not found in PATH"
+            exit 1
+          fi

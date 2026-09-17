@@ -1,0 +1,29 @@
+name: Test JFrog CLI specific version installation
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          version: "2.71.0"
+        continue-on-error: true
+      - name: Assert JFrog CLI specific version is installed
+        run: |
+          echo "Checking if jf binary is available with version 2.71.0..."
+          if command -v jf >/dev/null 2>&1; then
+            VERSION=$(jf --version 2>&1 || true)
+            echo "Installed version: $VERSION"
+            if echo "$VERSION" | grep -q "2.71.0"; then
+              echo "PASS: correct version 2.71.0 is installed"
+            else
+              echo "FAIL: expected version 2.71.0 but got: $VERSION"
+              exit 1
+            fi
+          else
+            echo "FAIL: jf binary not found in PATH"
+            exit 1
+          fi
