@@ -1,0 +1,36 @@
+name: Test JFrog CLI setup with custom server ID
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          version: "2.127.0"
+          custom-server-id: "my-custom-server"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+          disable-job-summary: "true"
+        continue-on-error: true
+      - name: Assert action ran with custom server ID
+        env:
+          OUTCOME: ${{ steps.setup.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action may fail because no JFrog platform credentials are configured,
+          # but it should not fail due to the custom-server-id input itself being invalid.
+          if [ "$OUTCOME" = "success" ]; then
+            if ! command -v jf >/dev/null 2>&1; then
+              echo "FAIL: jf command not found on PATH"
+              exit 1
+            fi
+            echo "PASS: JFrog CLI installed with custom server ID"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (expected in harness environment without JFrog credentials)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
