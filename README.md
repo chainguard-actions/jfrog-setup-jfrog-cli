@@ -16,6 +16,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v5.1.0 | [`v5.1.0`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/tree/v5.1.0) | [`deda456`](https://github.com/jfrog/setup-jfrog-cli/commit/deda456d982fc5e9a7a020b63eb0d2968aedd33e) |
 | v5.2.0 | [`v5.2.0`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/tree/v5.2.0) | [`68c0efd`](https://github.com/jfrog/setup-jfrog-cli/commit/68c0efdc951dd2359bbbfa15c48bc67b3ae8e4d6) |
 | v5.3.0 | [`v5.3.0`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/tree/v5.3.0) | [`1e58450`](https://github.com/jfrog/setup-jfrog-cli/commit/1e584506871998c267b7c100c02628a5b9c81db6) |
+| v5.3.1 | [`v5.3.1`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/tree/v5.3.1) | [`1a84ddc`](https://github.com/jfrog/setup-jfrog-cli/commit/1a84ddcff2d475751d8392ef6d7ecb478a7cfe53) |
 
 ## Privacy
 
