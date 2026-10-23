@@ -1,0 +1,35 @@
+name: Test package alias with specific tools
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          enable-package-alias: "true"
+          package-alias-tools: " npm , mvn "
+          disable-job-summary: "true"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert CLI installed and alias dir handled
+        run: |
+          command -v jf || { echo "FAIL: jf not on PATH"; exit 1; }
+          OUT="$(jf --version)"
+          echo "jf --version: $OUT"
+          echo "$OUT" | grep -q "2.128.0" || { echo "FAIL: expected version 2.128.0"; exit 1; }
+          ALIAS_DIR="${JFROG_CLI_HOME_DIR:-$HOME/.jfrog}/package-alias/bin"
+          echo "alias dir: $ALIAS_DIR"
+          echo "PATH: $PATH"
+          if [ -d "$ALIAS_DIR" ]; then
+            ls -la "$ALIAS_DIR" || true
+            case ":$PATH:" in
+              *":$ALIAS_DIR:"*) echo "alias dir is on PATH" ;;
+              *) echo "FAIL: alias dir exists but is not on PATH"; exit 1 ;;
+            esac
+          else
+            echo "alias dir not created (install skipped with warning)"
+          fi
+          echo "PASS"

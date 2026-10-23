@@ -1,0 +1,21 @@
+name: Test ghe_base_url alias input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          ghe_base_url: https://github.example.com/api/v3
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert CLI installed
+        run: |
+          command -v jf || { echo "FAIL: jf not on PATH"; exit 1; }
+          OUT="$(jf --version)"
+          echo "jf --version: $OUT"
+          echo "$OUT" | grep -q "2.128.0" || { echo "FAIL: expected version 2.128.0"; exit 1; }
+          echo "PASS"
