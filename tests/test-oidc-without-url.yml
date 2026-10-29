@@ -1,0 +1,32 @@
+name: Test OIDC inputs without JF_URL (no config, no token)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          oidc-provider-name: "my-provider"
+          oidc-audience: "jfrog-github"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert CLI installed and no OIDC outputs/server configured
+        env:
+          TOKEN: ${{ steps.action.outputs.oidc-token }}
+          OIDC_USER: ${{ steps.action.outputs.oidc-user }}
+        run: |
+          jf --version || { echo "FAIL: jf not usable"; exit 1; }
+          echo "oidc-user='$OIDC_USER'"
+          echo "SETUP_JFROG_CLI_SERVER_IDS='$SETUP_JFROG_CLI_SERVER_IDS'"
+          if [ -n "$TOKEN" ] || [ -n "$OIDC_USER" ]; then
+            echo "FAIL: expected no OIDC outputs without JF_URL"
+            exit 1
+          fi
+          if [ -n "$SETUP_JFROG_CLI_SERVER_IDS" ]; then
+            echo "FAIL: expected no server configured without JF_URL"
+            exit 1
+          fi
+          echo "PASS"

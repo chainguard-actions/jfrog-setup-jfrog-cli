@@ -1,0 +1,35 @@
+name: Test server configuration with custom server ID
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      JF_URL: https://example.jfrog.io
+      JF_ACCESS_TOKEN: dummy-access-token-for-config
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          custom-server-id: my-test-server
+          disable-job-summary: "true"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert server IDs env var
+        run: |
+          echo "SETUP_JFROG_CLI_SERVER_IDS=$SETUP_JFROG_CLI_SERVER_IDS"
+          if [ "$SETUP_JFROG_CLI_SERVER_IDS" != "my-test-server" ]; then
+            echo "FAIL: expected SETUP_JFROG_CLI_SERVER_IDS=my-test-server"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert server configured in JFrog CLI
+        run: |
+          OUT="$(jf config show my-test-server 2>&1)" || { echo "$OUT"; echo "FAIL: jf config show failed"; exit 1; }
+          echo "$OUT"
+          if ! echo "$OUT" | grep -q "example.jfrog.io"; then
+            echo "FAIL: configured URL not found"
+            exit 1
+          fi
+          echo "PASS"

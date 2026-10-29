@@ -1,6 +1,11 @@
 {
   "owner": "jfrog",
   "repo": "setup-jfrog-cli",
-  "version": "",
-  "url": "https://github.com/jfrog/setup-jfrog-cli"
+  "version": "v5.3.2",
+  "commit_sha": "6ed45ef1a24199bd4c94d3fd55a7e8cb7e45985d",
+  "url": "https://github.com/jfrog/setup-jfrog-cli",
+  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
+  "test_agent_version": "2",
+  "harden_agent_version": "2"
 }

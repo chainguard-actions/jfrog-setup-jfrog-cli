@@ -1,0 +1,30 @@
+name: Test package alias skipped on old CLI version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          version: 2.50.0
+          enable-package-alias: "true"
+          package-alias-tools: "npm, mvn"
+          disable-job-summary: "true"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert action succeeded and alias dir not added to PATH
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          [ "$OUTCOME" = "success" ] || { echo "FAIL: expected success"; exit 1; }
+          echo "PATH=$PATH"
+          if echo "$PATH" | grep -q "package-alias/bin"; then
+            echo "FAIL: package-alias bin dir should not be on PATH for CLI < 2.93.0"
+            exit 1
+          fi
+          jf --version | grep -q "2.50.0" || { echo "FAIL: wrong version"; exit 1; }
+          echo "PASS"

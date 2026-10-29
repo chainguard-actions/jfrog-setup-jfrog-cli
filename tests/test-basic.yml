@@ -1,0 +1,40 @@
+name: Test basic install (default version)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+      - name: Assert jf and jfrog are on PATH with the default version
+        run: |
+          set -e
+          command -v jf || { echo "FAIL: jf not on PATH"; exit 1; }
+          command -v jfrog || { echo "FAIL: jfrog not on PATH"; exit 1; }
+          OUT="$(jf --version)"
+          echo "jf --version: $OUT"
+          if ! echo "$OUT" | grep -q "2.129.0"; then
+            echo "FAIL: expected version 2.129.0"
+            exit 1
+          fi
+          OUT2="$(jfrog --version)"
+          echo "jfrog --version: $OUT2"
+          echo "$OUT2" | grep -q "2.129.0" || { echo "FAIL: jfrog version mismatch"; exit 1; }
+          echo "PASS"
+      - name: Assert CLI environment variables were exported
+        run: |
+          echo "JFROG_CLI_OFFER_CONFIG=$JFROG_CLI_OFFER_CONFIG"
+          echo "JFROG_CLI_AVOID_NEW_VERSION_WARNING=$JFROG_CLI_AVOID_NEW_VERSION_WARNING"
+          echo "CI=$CI"
+          echo "JFROG_CLI_USER_AGENT=$JFROG_CLI_USER_AGENT"
+          [ "$JFROG_CLI_OFFER_CONFIG" = "false" ] || { echo "FAIL: JFROG_CLI_OFFER_CONFIG"; exit 1; }
+          [ "$JFROG_CLI_AVOID_NEW_VERSION_WARNING" = "true" ] || { echo "FAIL: JFROG_CLI_AVOID_NEW_VERSION_WARNING"; exit 1; }
+          [ "$CI" = "true" ] || { echo "FAIL: CI"; exit 1; }
+          case "$JFROG_CLI_USER_AGENT" in
+            setup-jfrog-cli-github-action/*) ;;
+            *) echo "FAIL: unexpected user agent"; exit 1 ;;
+          esac
+          [ -n "$JFROG_CLI_ENV_EXCLUDE" ] || { echo "FAIL: JFROG_CLI_ENV_EXCLUDE empty"; exit 1; }
+          echo "PASS"

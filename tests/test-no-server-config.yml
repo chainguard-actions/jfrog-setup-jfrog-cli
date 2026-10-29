@@ -1,0 +1,22 @@
+name: Test no server configured without JF_URL
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert no server ID was registered
+        run: |
+          echo "SETUP_JFROG_CLI_SERVER_IDS='$SETUP_JFROG_CLI_SERVER_IDS'"
+          if [ -n "$SETUP_JFROG_CLI_SERVER_IDS" ]; then
+            echo "FAIL: expected no server IDs when JF_URL is not set"
+            exit 1
+          fi
+          jf --version || { echo "FAIL: jf not usable"; exit 1; }
+          echo "PASS"

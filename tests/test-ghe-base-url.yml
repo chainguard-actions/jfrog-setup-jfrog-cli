@@ -1,0 +1,20 @@
+name: Test ghe-base-url input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          ghe-base-url: "https://ghe.example.com/api/v3"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert CLI installed with ghe-base-url set
+        run: |
+          OUT="$(jf --version)" || { echo "FAIL: jf not usable"; exit 1; }
+          echo "jf --version: $OUT"
+          echo "$OUT" | grep -q "2.129.0" || { echo "FAIL: expected version 2.129.0"; exit 1; }
+          echo "PASS"
