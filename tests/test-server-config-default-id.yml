@@ -1,0 +1,33 @@
+name: Test server config with default server ID
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        env:
+          JF_URL: https://example.jfrog.io
+          JF_USER: test-user
+          JF_PASSWORD: test-password
+        with:
+          disable-job-summary: "true"
+          disable-auto-build-publish: "true"
+          disable-auto-evidence-collection: "true"
+      - name: Assert default server ID exported
+        run: |
+          echo "SETUP_JFROG_CLI_SERVER_IDS=$SETUP_JFROG_CLI_SERVER_IDS"
+          if [ "$SETUP_JFROG_CLI_SERVER_IDS" != "setup-jfrog-cli-server" ]; then
+            echo "FAIL: expected setup-jfrog-cli-server"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert server is configured in JFrog CLI
+        run: |
+          OUT="$(jf config show setup-jfrog-cli-server)"
+          echo "$OUT"
+          echo "$OUT" | grep -q "example.jfrog.io" || { echo "FAIL: URL not configured"; exit 1; }
+          echo "$OUT" | grep -q "test-user" || { echo "FAIL: user not configured"; exit 1; }
+          echo "PASS"
