@@ -1,0 +1,13 @@
+{
+  "status": "bundled",
+  "entries": [
+    {
+      "path": "lib/main.js",
+      "status": "bundled"
+    },
+    {
+      "path": "lib/cleanup.js",
+      "status": "bundled"
+    }
+  ]
+}
