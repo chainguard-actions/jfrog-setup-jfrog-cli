@@ -20,6 +20,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v5.3.2 | [`v5.3.2`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/tree/v5.3.2) | [`6ed45ef`](https://github.com/jfrog/setup-jfrog-cli/commit/6ed45ef1a24199bd4c94d3fd55a7e8cb7e45985d) | — |
 | v5.3.3 | [`v5.3.3`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/tree/v5.3.3) | [`066952a`](https://github.com/jfrog/setup-jfrog-cli/commit/066952a56c7d70e2ce4ed081329109166c2e53c9) | [`HARDENING.md`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/blob/v5.3.3/HARDENING.md) |
 | v5.3.4 | [`v5.3.4`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/tree/v5.3.4) | [`ae385c7`](https://github.com/jfrog/setup-jfrog-cli/commit/ae385c7164244e984cd20a58674e5b57f53596d7) | [`HARDENING.md`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/blob/v5.3.4/HARDENING.md) |
+| v5.3.5 | [`v5.3.5`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/tree/v5.3.5) | [`4c2f06d`](https://github.com/jfrog/setup-jfrog-cli/commit/4c2f06da03095113100534a16d58d8a252680949) | [`HARDENING.md`](https://github.com/chainguard-actions/jfrog-setup-jfrog-cli/blob/v5.3.5/HARDENING.md) |
 
 ## Privacy
 
